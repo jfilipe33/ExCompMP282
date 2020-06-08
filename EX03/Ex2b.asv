@@ -1,0 +1,95 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Lista 3 - Ex. 2b)
+% Author: João Filipe R. P. de A. Silva / joaofilipe@ita.br
+% Affiliation: Aeronautics Institute of Technology (ITA/Brazil)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc;
+clear;
+close all;
+
+%% Simulation parameters
+
+tf = 5;               % simulation time in seconds
+Ts  = 0.001;            % sampling time in seconds
+t = 0:Ts:tf-Ts;
+
+%% MAV Properties
+
+mav.Jb = diag([0.05 0.05 0.01]);
+mav.m = 0.5;
+mav.g = 9.81;
+mav.e3 = [0 0 1]';
+
+
+%% Position Controller Properties
+
+pc.K3 = 2.5*eye(3);
+pc.K4 = 1*eye(3);
+pc.Jb = mav.Jb;
+
+%% Variables Initialization 
+pc.rTar = [1 1 1]'; %3D position command
+pc.r = [0 0 0]'; %3D initial position
+pc.v = [0 0 0]'; %3D initial velocity
+pc.vTar = [0 0 0]'; %3D velocity command
+states = [pc.r; pc.v];
+
+
+%% Execution
+
+for cont = 1:tf/Ts
+    
+    pc.Fc = mav.m*(pc.K3*(pc.rTar-pc.r) + pc.K4*(pc.vTar-pc.v) + mav.g*mav.e3);
+
+    %integration using HK4
+            
+    k1 = Ts*dynPC(states,pc);
+    k2 = Ts*dynPC(states+k1/2,pc);
+    k3 = Ts*dynPC(states+k2/2,pc);         
+    k4 = Ts*dynPC(states+k3,pc); 
+    states  = states + k1/6 + k2/3 + k3/3 + k4/6;
+    
+    %updated states
+            
+    pc.r = states(1:3);
+    pc.v = states(4:6);
+    pc.rDot = pc.v;
+    pc.vDot = (1/mav.m)*obj.Fc - g*e3;
+    
+%     ac.Sa = ac.C1*ac.gTilde + ac.C2*ac.gTildeDot;
+    printAlpha(cont) = norm(pc.alpha);
+    printOmega(cont) = norm(pc.Omega);
+    printInput(cont) = norm(pc.Tc);
+%     
+    ang(cont,:) = pc.alpha;
+    pc = aTildeRefresh(pc);
+ 
+end
+
+figure; hold on; grid; box;
+title('Angles');
+plot(t,ang(:,1),'LineWidth',2.0);
+plot(t,ang(:,2),'LineWidth',2.0);
+plot(t,ang(:,3),'LineWidth',2.0);
+xlabel('time (s)','interpreter','latex','FontSize',14);
+ylabel('$deg$','interpreter','latex','FontSize',14);
+
+figure; hold on; grid; box;
+title('Input');
+plot(t,printInput,'LineWidth',2.0);
+xlabel('time (s)','interpreter','latex','FontSize',14);
+ylabel('$T^c_B$','interpreter','latex','FontSize',14);
+
+figure; hold on; grid; box;
+title('Attitude States');
+plot(t,printAlpha,'LineWidth',2.0);
+plot(t,printOmega,'LineWidth',2.0);
+xlabel('time (s)','interpreter','latex','FontSize',14);
+ylabel('Amplitude','interpreter','latex','FontSize',14);
+% 
+% figure; hold on; grid; box;
+% title('Phase Plane');
+% plot(printaTilde,printOmegaTilde,'LineWidth',2.0);
+% xlabel('$$\tilde{g}$$','interpreter','latex','FontSize',14);
+% ylabel('$$\dot{\tilde{g}}$$','interpreter','latex','FontSize',14);
