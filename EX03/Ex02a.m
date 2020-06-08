@@ -10,7 +10,7 @@ close all;
 
 %% Simulation parameters
 
-tf = 5;               % simulation time in seconds
+tf = 10 ;               % simulation time in seconds
 Ts  = 0.001;            % sampling time in seconds
 t = 0:Ts:tf-Ts;
 ang = zeros(length(t),3);
@@ -24,7 +24,7 @@ mav.g = 9.81;
 
 %% Attitude Controller Properties
 
-ac.K1 = 25*eye(3);
+ac.K1 = 10*eye(3);
 ac.K2 = 10*eye(3);
 ac.Jb = mav.Jb;
 

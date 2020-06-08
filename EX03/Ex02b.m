@@ -10,7 +10,7 @@ close all;
 
 %% Simulation parameters
 
-tf = 5;               % simulation time in seconds
+tf = 10;               % simulation time in seconds
 Ts  = 0.001;            % sampling time in seconds
 t = 0:Ts:tf-Ts;
 
@@ -24,8 +24,8 @@ mav.e3 = [0 0 1]';
 
 %% Position Controller Properties
 
-pc.K3 = 25*eye(3);
-pc.K4 = 10*eye(3);
+pc.K3 = 1.2*eye(3);
+pc.K4 = 2*eye(3);
 pc.Jb = mav.Jb;
 
 %% Variables Initialization 
