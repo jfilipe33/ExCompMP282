@@ -119,9 +119,10 @@ for cont = 1:tf/Ts
     ac.Tc = ac.Jb*ac.K1*ac.aTilde + ac.Jb*ac.K2*ac.OmegaTilde - skew(ac.Jb*ac.Omega)*ac.Omega;
     
     pc.Fc = satF(pc,mav);
+    pc.Fc = norm(pc.Fc);
     ac.Tc = satT(ac,mav);
     
-    mav.fbar = pinv(mav.Lambda)*[norm(pc.Fc); ac.Tc];   
+    mav.fbar = pinv(mav.Lambda)*[pc.Fc; ac.Tc];   
     mav.wbar = sqrt(mav.fbar/mav.kf);
     mav.w = rotorTF(Ts,mav)';
     mav.f = mav.w.^2*mav.kf;
